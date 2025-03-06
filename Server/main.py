@@ -1,5 +1,7 @@
 import recv
 
+# packet buffer
+# pkt_recv = []
 
 def main():
     recv.newSocket()

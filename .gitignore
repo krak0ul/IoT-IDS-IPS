@@ -1,3 +1,5 @@
 __pycache__/
-*.pcap
 *.pyc
+
+pcaps/
+*.pcap
