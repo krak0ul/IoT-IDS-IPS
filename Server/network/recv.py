@@ -29,6 +29,6 @@ def newSocket():
                 pkt_recv.append(data)
     return
 
-def prt_pkt_recv():
+def prt_pkt_recv(pkt_recv):
     print(pkt_recv)
     return
