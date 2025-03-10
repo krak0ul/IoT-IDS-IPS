@@ -14,3 +14,15 @@ lxml-5.3.1
 packaging-24.2
 pyshark-0.6
 termcolor-2.5.0
+
+    // xgboost
+nvidia-nccl-cu12-2.25.1
+scipy-1.15.2
+xgboost-2.1.4
+
+    // numpy
+numpy-2.2.3
+
+    // sklearn
+scikit-learn-1.6.1
+threadpoolctl-3.5.0
