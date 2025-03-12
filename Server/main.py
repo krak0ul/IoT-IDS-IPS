@@ -3,7 +3,7 @@ import sys
 from settings import PCAP_FILE, FEATURES, MODEL
 from dataHandling.featureExtractPcap import pcap_to_df
 from dataHandling.dataPreparation import prepareData
-
+from dataHandling.modelAPI import import_model, prediction
 
 file_name = PCAP_FILE
 features = FEATURES
@@ -16,4 +16,9 @@ if __name__ == '__main__':
         df = prepareData(df)
         print(df)
         
+        model = import_model(model_pickle)
+        prediction = prediction(model, df)
+        print("prediction: " + str(prediction))
+        
+
         sys.exit(0)
