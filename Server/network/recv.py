@@ -4,13 +4,11 @@ HOST = ''       # listen on all interfaces
 PORT = 3630     # open port 3630
 
 
-# packet buffer
-pkt_recv = []
-
-# class pkt:
-
 
 def newSocket():
+    # packet buffer
+    pkt_recv = []
+
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
         s.listen(5)
@@ -24,11 +22,12 @@ def newSocket():
                 if not data:
                     break
                 
-                # conn.sendall(data)
+                conn.sendall(b'Packet received')
                 print("Data: ", repr(data))
                 pkt_recv.append(data)
-    return
+    return  pkt_recv
 
 def prt_pkt_recv(pkt_recv):
-    print(pkt_recv)
+    for i in pkt_recv:
+        print(i)
     return
