@@ -11,5 +11,5 @@ def prediction(model, df):
     labels = ['Non-Attack', 'Attack']  # Assuming 0 = Non-Attack, 1 = Attack
 
     print("val count: ")
-    print(pd.Series(pred).value_counts())
+    print(counts)
     return pred

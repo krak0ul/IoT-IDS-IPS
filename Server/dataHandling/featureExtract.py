@@ -109,7 +109,7 @@ def extract_packets(packets, features):
     for pkt in filtered_pkts:
         pkt_features = feature_extraction(pkt, features)
         pkt_features_list.append(pkt_features)
-        
+    
     df = pd.DataFrame(data=pkt_features_list, columns=features)
     # print(df)
     return df
