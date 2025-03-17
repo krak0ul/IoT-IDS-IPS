@@ -1,7 +1,6 @@
+import joblib
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import StandardScaler
 
 
 def cleanValues(df):
@@ -17,7 +16,10 @@ def cleanValues(df):
 
     return df
 
-def labelEncode(df):
+def import_encoder(encoder_pickle):
+    return joblib.load(encoder_pickle)
+
+def labelEncode(df, encoder):
     # Identify categorical features - select_type would lead to the wrong fields being encoded, I fixed this by encoding only the parameters that were encoded in the training model
     # categorical_features = df.select_dtypes(include=['object']).columns
     categorical_features =  ['http.request.method', 'http.referer', 'http.request.version', 'dns.qry.name.len', 'mqtt.conack.flags', 'mqtt.protoname', 'mqtt.topic']
@@ -26,31 +28,35 @@ def labelEncode(df):
     # convert all numeric columns to an numeric datatype
     numeric_columns = df.drop(columns=categorical_features).columns
     df[numeric_columns] = df[numeric_columns].apply(pd.to_numeric, errors='coerce')
+
     label_encoders = {}
     for col in categorical_features:
-        le = LabelEncoder()
+        le = encoder
         
         df[col] = df[col].astype(str)   # Convert column values to strings to ensure uniformity
         df[col] = le.fit_transform(df[col])
         label_encoders[col] = le
 
     return df
-    
-def scaleFeatures(df):
+
+def import_scaler(scaler_pickle):
+    return joblib.load(scaler_pickle)
+
+def scaleFeatures(df, scaler):
     # Standardize numerical features
-    scaler = StandardScaler()
+    
     scaled_columns = df.select_dtypes(include=[np.number]).columns
     df[scaled_columns] = scaler.fit_transform(df[scaled_columns])
 
     print("Feature scaling applied.")
     return df
 
-def prepareData(df):
+def prepareData(df, scaler, encoder):
     df = cleanValues(df)
     print("values cleaned:")
     print(df)
-    df = labelEncode(df)
+    df = labelEncode(df, encoder)
     print("label encoded:")
     print(df)
-    df = scaleFeatures(df)
+    df = scaleFeatures(df, scaler)
     return df

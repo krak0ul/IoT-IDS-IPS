@@ -1,13 +1,15 @@
 import sys
 
-from settings import PCAP_FILE, FEATURES, MODEL
+from settings import *
 from dataHandling.featureExtract import extract_packets, format_raw, pcap_to_raw
-from dataHandling.dataPreparation import prepareData
+from dataHandling.dataPreparation import prepareData, import_encoder, import_scaler
 from dataHandling.modelAPI import import_model, prediction
 
 file_name = PCAP_FILE
 features = FEATURES
 model_pickle = MODEL
+encoder_pickle = ENCODER
+scaler_pickle = SCALER
 
 
 def pkt_processing(pkt_buffer):
@@ -17,7 +19,10 @@ def pkt_processing(pkt_buffer):
 
         df = extract_packets(packets, features)
         print(df)
-        df = prepareData(df)
+        
+        scaler = import_scaler(scaler_pickle)
+        encoder = import_encoder(encoder_pickle)
+        df = prepareData(df, scaler, encoder)
         print(df)
         
         model = import_model(model_pickle)
