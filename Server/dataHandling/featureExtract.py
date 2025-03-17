@@ -1,19 +1,50 @@
 import pyshark as ps
 import pandas as pd
+from scapy.all import rdpcap
 
 
 def open_pcap(file_name):
+    """
+    for testing purposes - returns a pyshark object of all packets in a pcap
+    """
     print('Opening {}...'.format(file_name))
     return ps.FileCapture(input_file=file_name)
 
+def pcap_to_raw(file_name):
+    """
+    for testing purposes - put packets as raw bytes in buffer
+    """
+    raw_packets = rdpcap(file_name)
+    pkt_buffer = []
+    for pkt in raw_packets:
+        pkt_buffer.append(bytes(pkt))
+    # print(pkt_buffer)
+    return pkt_buffer
+
+
+
+def format_raw(pkt_buffer):
+    """
+    Formats raw byte packets into pyshark Packet objects.
+    """
+    capture = ps.InMemCapture()
+    # capture.set_debug()
+    packets = capture.parse_packets(pkt_buffer)
+    # print(packets)
+    return packets
+
 def filter_packets(packets):
+    """
+    Ignores all IPv6 packets.
+    """
     filtered_pkts = []
     for pkt in packets:
+        # print(pkt.pretty_print())
         # only keep packets that have an ethernet layer
         if (hasattr(pkt, 'eth')):
             # discard IPv6 packets
             if (pkt.eth.type == '0x86dd'):
-                # print('IPV6 PACKET')
+                # print('IPV6 PACKET - Ignoring packet')
                 pass
 
             else:
@@ -21,6 +52,7 @@ def filter_packets(packets):
                 filtered_pkts.append(pkt)
                 # print(pkt)
         else:
+            # print("No Ether layer")
             pass
     # print(filtered_pkts)
     return filtered_pkts
@@ -28,7 +60,7 @@ def filter_packets(packets):
 
 def feature_extraction(pkt, features):
     """
-    Extract features from a raw packet. The features is the same we trained our model with.
+    Extract features from a raw packet. The features are the same we trained our model with.
     """
     pkt_features = []
 
@@ -65,15 +97,13 @@ def get_attr(pkt, attr_str):
             return 0
 
 
-
-def pcap_to_df(file_name, features):
+def extract_packets(packets, features):
     """
-    Parses a provided pcap file to extract specified features in each packet.
+    Parses a list of pyshark packets to extract specified features in each packet.
     Returns a pandas DataFrame with the features as columns and each non-IPv6 packet as a row.
     """
-    packets = open_pcap(file_name)
     filtered_pkts = filter_packets(packets)
-    
+    # print(filtered_pkts)
     pkt_features_list = [] 
 
     for pkt in filtered_pkts:
