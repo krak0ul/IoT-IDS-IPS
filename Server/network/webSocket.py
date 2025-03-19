@@ -3,36 +3,42 @@
 import asyncio
 import json
 from websockets.asyncio.server import serve
-
+from websockets.exceptions import ConnectionClosedOK
 HOST = 'localhost'       # listen on all interfaces
 PORT = 3630     # open port 3630
-
+CLIENTS = set()
 
 def decode_json(json_pkt):
     return json.loads(json_pkt)
 
 
-async def hello(websocket):
-    pkt_recv = []
-    
-    data = await websocket.recv()
-    
+def process_packet(data):
     try:
         json_object = decode_json(data)
-        print("<<< ", json_object)
-        pkt_recv.append(json_object)
+        print(f"<<< {json_object}")
+        return json_object
 
     except ValueError:
-        print("Data: ", data)
+        print(f"Data: {data}")
+        return None
+
+async def process_socket(websocket):
+    pkt_recv = []
+    
+    try:
+        while True:
+            data = await websocket.recv()
         
-    ack = 'Packet received'
+            json_object = process_packet(data)
+            if json_object:
+                pkt_recv.append(json_object)
 
-    await websocket.send(ack)
-    print(">>> ", ack)
-
-
+            print(f"packets received: {pkt_recv}\n\n")
+    except ConnectionClosedOK:
+        print("Client closed connection")
+        
 async def main():
-    async with serve(hello, HOST, PORT) as server:
+    async with serve(process_socket, HOST, PORT) as server:
         await server.serve_forever()
 
 
