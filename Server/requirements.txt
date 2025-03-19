@@ -26,3 +26,6 @@ numpy-2.2.3
     // sklearn
 scikit-learn-1.6.1
 threadpoolctl-3.5.0
+
+    // websocket
+websockets-15.0.1

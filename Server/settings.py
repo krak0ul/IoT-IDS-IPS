@@ -30,7 +30,7 @@ FEATURES = [
 ]
 
 # Network settings
-HOST = '0.0.0.0'  # Listen on all interfaces
+HOST = 'localhost'  # Listen on all interfaces
 PORT = 3630       # Port to listen on
 
 # Packet forwarding settings
