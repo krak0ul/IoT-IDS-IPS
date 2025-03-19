@@ -1,10 +1,41 @@
-# Server/dataHandling/featureExtractPcap.py
-PCAP_FILE = 'pcaps/test.pcap'
-FEATURES = ['arp.opcode', 'arp.hw.size', 'icmp.checksum', 'icmp.seq_le', 'icmp.unused', 'http.content_length', 'http.request.method', 'http.referer', 'http.request.version', 'http.response', 'http.tls_port', 'tcp.ack', 'tcp.ack_raw', 'tcp.checksum', 'tcp.connection.fin', 'tcp.connection.rst', 'tcp.connection.syn', 'tcp.connection.synack', 'tcp.flags', 'tcp.flags.ack', 'tcp.len', 'tcp.seq', 'udp.stream', 'udp.time_delta', 'dns.qry.name', 'dns.qry.name.len', 'dns.qry.qu', 'dns.qry.type', 'dns.retransmission', 'dns.retransmit_request', 'dns.retransmit_request_in', 'mqtt.conack.flags', 'mqtt.conflag.cleansess', 'mqtt.conflags', 'mqtt.hdrflags', 'mqtt.len', 'mqtt.msg_decoded_as', 'mqtt.msgtype', 'mqtt.proto_len', 'mqtt.protoname', 'mqtt.topic', 'mqtt.topic_len', 'mqtt.ver', 'mbtcp.len', 'mbtcp.trans_id', 'mbtcp.unit_id']
+# settings.py
 
-# Server/dataHandling/modelAPI.py
-MODEL = 'IoT-IDS-IPS/Server/pickles/XGB_model.pkl'
+# File paths
+PCAP_FILE = "pcaps/test.pcap"  # Default pcap file for testing
 
-# Server/dataHandling/dataPreparation.py
-ENCODER = 'IoT-IDS-IPS/Server/pickles/encoder.pkl'
-SCALER = 'IoT-IDS-IPS/Server/pickles/scaler.pkl'
+# ML model files
+MODEL = "pickles/XGB_model.pkl"
+ENCODER = "pickles/encoder.pkl"
+SCALER = "pickles/scaler.pkl"
+
+# Features to extract from packets
+# Adjust these to match the features your model was trained on
+FEATURES = [
+    'frame.len',
+    'ip.len',
+    'ip.flags',
+    'ip.ttl',
+    'tcp.len',
+    'tcp.ack',
+    'tcp.flags',
+    'tcp.window_size',
+    'udp.length',
+    'http.request.method',
+    'http.referer',
+    'http.request.version',
+    'dns.qry.name.len',
+    'mqtt.conack.flags',
+    'mqtt.protoname',
+    'mqtt.topic'
+]
+
+# Network settings
+HOST = '0.0.0.0'  # Listen on all interfaces
+PORT = 3630       # Port to listen on
+
+# Packet forwarding settings
+INTERFACE = "eth0"         # Interface to monitor
+FORWARD_INTERFACE = "eth1"  # Interface to forward clean packets
+
+# IDS/IPS mode
+IDS_MODE = True  # True for IDS (detection only), False for IPS (detection and blocking)

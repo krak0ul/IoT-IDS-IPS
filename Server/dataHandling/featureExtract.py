@@ -1,115 +1,129 @@
-import pyshark as ps
+# dataHandling/featureExtract.py
 import pandas as pd
-from scapy.all import rdpcap
+import numpy as np
+from scapy.all import rdpcap, IP, TCP, UDP, Ether
+import socket
+import struct
 
-
-def open_pcap(file_name):
+def pcap_to_raw(pcap_file):
     """
-    for testing purposes - returns a pyshark object of all packets in a pcap
+    Reads a pcap file and returns a list of raw packet data
     """
-    print('Opening {}...'.format(file_name))
-    return ps.FileCapture(input_file=file_name)
+    try:
+        packets = rdpcap(pcap_file)
+        raw_packets = [bytes(packet) for packet in packets]
+        return raw_packets
+    except Exception as e:
+        print(f"Error reading pcap file: {e}")
+        return []
 
-def pcap_to_raw(file_name):
+def format_raw(raw_packets):
     """
-    for testing purposes - put packets as raw bytes in buffer
+    Converts raw packet bytes back to scapy packets
     """
-    raw_packets = rdpcap(file_name)
-    pkt_buffer = []
-    for pkt in raw_packets:
-        pkt_buffer.append(bytes(pkt))
-    # print(pkt_buffer)
-    return pkt_buffer
+    formatted_packets = []
+    for raw_packet in raw_packets:
+        try:
+            packet = Ether(raw_packet)
+            formatted_packets.append(packet)
+        except Exception as e:
+            print(f"Error formatting packet: {e}")
+    return formatted_packets
 
-
-
-def format_raw(pkt_buffer):
+def extract_packet_features(packet, features):
     """
-    Formats raw byte packets into pyshark Packet objects.
+    Extract features from a single packet
     """
-    capture = ps.InMemCapture()
-    # capture.set_debug()
-    packets = capture.parse_packets(pkt_buffer)
-    # print(packets)
-    return packets
-
-def filter_packets(packets):
-    """
-    Ignores all IPv6 packets.
-    """
-    filtered_pkts = []
-    for pkt in packets:
-        # print(pkt.pretty_print())
-        # only keep packets that have an ethernet layer
-        if (hasattr(pkt, 'eth')):
-            # discard IPv6 packets
-            if (pkt.eth.type == '0x86dd'):
-                # print('IPV6 PACKET - Ignoring packet')
-                pass
-
-            else:
-                # pkt.pretty_print()
-                filtered_pkts.append(pkt)
-                # print(pkt)
-        else:
-            # print("No Ether layer")
-            pass
-    # print(filtered_pkts)
-    return filtered_pkts
-        
-
-def feature_extraction(pkt, features):
-    """
-    Extract features from a raw packet. The features are the same we trained our model with.
-    """
-    pkt_features = []
-
-    for feature in features:
-        # print(feature)
-        feature_value = get_attr(pkt, feature)
-        pkt_features.append(feature_value)
-
-    # print(pkt_features)
-    return pkt_features
+    packet_features = {}
     
-
-
-def get_attr(pkt, attr_str):
-    """
-    Gets attribute from a packet object given a dot-separated string.
-    If any attribute in the chain is missing, return 0.
-    This is required due to a bug in PyShark that gives error 'AttributeError'
-    """
-    # first field should be the packet layer being parsed
-    fields = attr_str.split('.')
-
-    #if packet does not have the required layer
-    if not hasattr(pkt, fields[0]):
-        return 0
+    # Extract Ethernet features
+    if 'eth_src' in features and Ether in packet:
+        packet_features['eth_src'] = packet[Ether].src
+    if 'eth_dst' in features and Ether in packet:
+        packet_features['eth_dst'] = packet[Ether].dst
+    if 'eth_type' in features and Ether in packet:
+        packet_features['eth_type'] = packet[Ether].type
+        
+    # Extract IP features
+    if IP in packet:
+        if 'ip_src' in features:
+            packet_features['ip_src'] = packet[IP].src
+        if 'ip_dst' in features:
+            packet_features['ip_dst'] = packet[IP].dst
+        if 'ip_proto' in features:
+            packet_features['ip_proto'] = packet[IP].proto
+        if 'ip_len' in features:
+            packet_features['ip_len'] = packet[IP].len
+        if 'ip_ttl' in features:
+            packet_features['ip_ttl'] = packet[IP].ttl
+        if 'ip_flags' in features:
+            packet_features['ip_flags'] = packet[IP].flags
     else:
-        # gets a dictionary of all fields of that layer and searches for the attribute
-        try: 
-            # dirty try - except is temporary solution because some protocols don't always use all attributes
-            attr = getattr(pkt, fields[0])._all_fields[attr_str]
-            # print(attr_str + ': ' + str(attr))
-            return attr        
-        except:
-            return 0
-
+        # Fill with NaN for IP features if they're in the feature list
+        for feature in features:
+            if feature.startswith('ip_') and feature not in packet_features:
+                packet_features[feature] = np.nan
+    
+    # Extract TCP features
+    if TCP in packet:
+        if 'tcp_sport' in features:
+            packet_features['tcp_sport'] = packet[TCP].sport
+        if 'tcp_dport' in features:
+            packet_features['tcp_dport'] = packet[TCP].dport
+        if 'tcp_flags' in features:
+            packet_features['tcp_flags'] = packet[TCP].flags
+        if 'tcp_window' in features:
+            packet_features['tcp_window'] = packet[TCP].window
+    else:
+        # Fill with NaN for TCP features if they're in the feature list
+        for feature in features:
+            if feature.startswith('tcp_') and feature not in packet_features:
+                packet_features[feature] = np.nan
+    
+    # Extract UDP features
+    if UDP in packet:
+        if 'udp_sport' in features:
+            packet_features['udp_sport'] = packet[UDP].sport
+        if 'udp_dport' in features:
+            packet_features['udp_dport'] = packet[UDP].dport
+        if 'udp_len' in features:
+            packet_features['udp_len'] = packet[UDP].len
+    else:
+        # Fill with NaN for UDP features if they're in the feature list
+        for feature in features:
+            if feature.startswith('udp_') and feature not in packet_features:
+                packet_features[feature] = np.nan
+    
+    # Calculate packet size
+    if 'packet_size' in features:
+        packet_features['packet_size'] = len(bytes(packet))
+    
+    # Fill missing features with NaN
+    for feature in features:
+        if feature not in packet_features:
+            packet_features[feature] = np.nan
+    
+    return packet_features
 
 def extract_packets(packets, features):
     """
-    Parses a list of pyshark packets to extract specified features in each packet.
-    Returns a pandas DataFrame with the features as columns and each non-IPv6 packet as a row.
+    Extract features from all packets and return a DataFrame
     """
-    filtered_pkts = filter_packets(packets)
-    # print(filtered_pkts)
-    pkt_features_list = [] 
-
-    for pkt in filtered_pkts:
-        pkt_features = feature_extraction(pkt, features)
-        pkt_features_list.append(pkt_features)
+    packet_data = []
     
-    df = pd.DataFrame(data=pkt_features_list, columns=features)
-    # print(df)
+    for packet in packets:
+        packet_features = extract_packet_features(packet, features)
+        packet_data.append(packet_features)
+    
+    # Convert to DataFrame
+    df = pd.DataFrame(packet_data)
+    
+    # Ensure all requested features are in the DataFrame
+    for feature in features:
+        if feature not in df.columns:
+            df[feature] = np.nan
+    
+    # Ensure DataFrame has only the requested features and in the right order
+    df = df[features]
+    
     return df
