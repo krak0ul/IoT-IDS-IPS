@@ -4,9 +4,9 @@
 PCAP_FILE = "pcaps/test.pcap"  # Default pcap file for testing
 
 # ML model files
-MODEL = "pickles/XGB_model.pkl"
-ENCODER = "pickles/encoder.pkl"
-SCALER = "pickles/scaler.pkl"
+MODEL = "server/pickles/XGB_model.pkl"
+ENCODER = "server/pickles/encoder.pkl"
+SCALER = "server/pickles/scaler.pkl"
 
 # Features to extract from packets
 # Adjust these to match the features your model was trained on
