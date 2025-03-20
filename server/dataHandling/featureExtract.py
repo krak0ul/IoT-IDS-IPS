@@ -99,7 +99,8 @@ def feature_extraction(pkt, features):
         feature_value = get_attr(pkt, feature)
         pkt_features.append(feature_value)
 
-    # print(pkt_features)
+    print(f"feature list {pkt_features}")
+    print(f"pkt features: {pkt_features}")
     return pkt_features
     
 
@@ -159,9 +160,8 @@ def extract_packet(packet, features):
         return
     pkt_features_list = [] 
 
-    pkt_features = feature_extraction(pkt, features)
-    pkt_features_list.append(pkt_features)
+    pkt_features = feature_extraction(filtered_pkt, features)
     
-    df = pd.DataFrame(data=pkt_features_list, columns=features)
+    df = pd.DataFrame(data=[pkt_features], columns=features)
     # print(df)
     return df

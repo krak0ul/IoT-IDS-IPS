@@ -4,7 +4,7 @@ from scapy.all import rdpcap
 from websockets.sync.client import connect
 
 
-packets = rdpcap('pcaps/unitARPv4.pcap')
+packets = rdpcap('pcaps/test.pcap')
 
 HOST = 'localhost'    # The remote host
 PORT = '3630'              # The same port as used by the server
@@ -30,6 +30,7 @@ def open_connection():
         
             websocket.send(json_pkt)
             print(f"Sent packet {PACKET_ID}")
+
 
 
         websocket.close()

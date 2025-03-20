@@ -1,4 +1,3 @@
-màj le settings.py:
-Update the FEATURES list to match what our ML model was trained on
-Set the correct network interfaces for monitoring and forwarding
-Adjust paths to our model, encoder, and scaler pickle files
+Fix feature scaling - scales features to 0 when working on a single packet
+Fix Model predictions - predicts 7 
+Write sniffer part of client code

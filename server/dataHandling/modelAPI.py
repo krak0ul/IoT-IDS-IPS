@@ -3,7 +3,7 @@ import asyncio
 # import xgboost
 import pandas as pd
 
-from dataHandling.featureExtract import extract_packets, format_raw_packet, pcap_to_raw
+from dataHandling.featureExtract import extract_packet, format_raw_packet, pcap_to_raw
 from dataHandling.dataPreparation import prepareData
 from settings import FEATURES
 
@@ -27,21 +27,21 @@ def prediction(model, df):
 async def pkt_processing(pkt, scaler, encoder, model):
     packet = await asyncio.to_thread(format_raw_packet, pkt)
     print("packet formatted")
-    print(packet)
+    # print(packet)
 
-    df = extract_packets(packet, FEATURES)
-    if not df:
+    df = extract_packet(packet, FEATURES)
+    if df is None:
         return
     else:
         df = prepareData(df, scaler, encoder)
         print(df)
         
-        results = await prediction(model, df)
+        results = prediction(model, df)
         print("prediction: " + str(results))
         return
 
 
-#               TODO - Trucs de thomas à explorer
+# #               TODO - Trucs de thomas à explorer
 # def prediction(model, df):
 #     try:
 #         # Make prediction

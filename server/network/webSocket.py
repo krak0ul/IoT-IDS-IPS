@@ -50,7 +50,6 @@ async def handler(websocket, scaler, encoder, model):
             json_object = process_packet(data)
             if json_object:
                 pkt_recv.append(json_object)
-                print("checkpoint")
                 print(get_raw_pkt(json_object))
             asyncio.create_task(pkt_processing(get_raw_pkt(json_object), scaler, encoder, model))
     except ConnectionClosedOK:

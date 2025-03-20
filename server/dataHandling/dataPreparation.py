@@ -11,6 +11,8 @@ def cleanValues(df):
 
     # Replace 'INF' or '-INF' with NaN (if they exist)
     df.replace([np.inf, -np.inf], np.nan, inplace=True)
+    print("cleaning values: ")
+    print(df)
     # Drop rows with NaN values
     df.dropna(inplace=True)
     return df
@@ -54,7 +56,8 @@ def import_scaler(scaler_pickle):
 def scaleFeatures(df, scaler):
     # Standardize numerical features
     
-    scaled_columns = df.select_dtypes(include=[np.number]).columns
+    # scaled_columns = df.select_dtypes(include=[np.number]).columns
+    scaled_columns = df.columns
     df[scaled_columns] = scaler.fit_transform(df[scaled_columns])
 
     print("Feature scaling applied.")
