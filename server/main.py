@@ -15,12 +15,6 @@ encoder_pickle = ENCODER
 scaler_pickle = SCALER
 
 
-
-# if __name__ == '__main__':
-#         pkt_processing(pkt_buffer = [])
-
-#         sys.exit(0)
-
 async def main():
     scaler = import_scaler(scaler_pickle)
     encoder = import_encoder(encoder_pickle)

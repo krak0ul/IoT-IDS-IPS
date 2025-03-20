@@ -1,4 +1,5 @@
 import joblib
+import asyncio
 # import xgboost
 import pandas as pd
 
@@ -24,18 +25,20 @@ def prediction(model, df):
     return pred
 
 async def pkt_processing(pkt, scaler, encoder, model):
-#     pkt_buffer = pcap_to_raw("../pcaps/unit.pcap")
-    # print(pkt_buffer)
-    packets = await format_raw_packet(pkt)
-    
-    df = await extract_packets(packets, FEATURES)
-    print(df)
-    
-    df = await prepareData(df, scaler, encoder)
-    print(df)
-    
-    results = await prediction(model, df)
-    print("prediction: " + str(results))
+    packet = await asyncio.to_thread(format_raw_packet, pkt)
+    print("packet formatted")
+    print(packet)
+
+    df = extract_packets(packet, FEATURES)
+    if not df:
+        return
+    else:
+        df = prepareData(df, scaler, encoder)
+        print(df)
+        
+        results = await prediction(model, df)
+        print("prediction: " + str(results))
+        return
 
 
 #               TODO - Trucs de thomas à explorer

@@ -1,6 +1,7 @@
 # from settings import HOST, PORT 
 import asyncio
 import json
+import base64
 from websockets.exceptions import ConnectionClosedOK
 from websockets.frames import CloseCode
 from network.authentication import get_user
@@ -11,8 +12,8 @@ PORT = 3630     # open port 3630
 
 
 def get_raw_pkt(json_object):
-    b64_data = json_object["data"]
-    return b64_data.encode('utf-8')
+    b64_bytes = json_object["data"].encode('utf-8')
+    return base64.b64decode(b64_bytes)
 
 def decode_json(json_pkt):
     return json.loads(json_pkt)
@@ -45,11 +46,12 @@ async def handler(websocket, scaler, encoder, model):
     try:
         while True:
             data = await websocket.recv()
-        
+            print("async")
             json_object = process_packet(data)
             if json_object:
                 pkt_recv.append(json_object)
-
+                print("checkpoint")
+                print(get_raw_pkt(json_object))
             asyncio.create_task(pkt_processing(get_raw_pkt(json_object), scaler, encoder, model))
     except ConnectionClosedOK:
         print(f"packets received: {pkt_recv}\n\n")

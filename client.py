@@ -4,7 +4,7 @@ from scapy.all import rdpcap
 from websockets.sync.client import connect
 
 
-packets = rdpcap('pcaps/unit.pcap')
+packets = rdpcap('pcaps/unitARPv4.pcap')
 
 HOST = 'localhost'    # The remote host
 PORT = '3630'              # The same port as used by the server

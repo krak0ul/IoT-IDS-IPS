@@ -48,7 +48,7 @@ def format_raw_packet(pkt):
 
 def filter_packets(packets):
     """
-    Ignores all IPv6 packets.
+    Goes through a list of packets and ignores all IPv6 packets.
     """
     filtered_pkts = []
     for pkt in packets:
@@ -57,7 +57,7 @@ def filter_packets(packets):
         if (hasattr(pkt, 'eth')):
             # discard IPv6 packets
             if (pkt.eth.type == '0x86dd'):
-                # print('IPV6 PACKET - Ignoring packet')
+                print('IPV6 PACKET - Ignoring packet')
                 pass
 
             else:
@@ -70,6 +70,23 @@ def filter_packets(packets):
     # print(filtered_pkts)
     return filtered_pkts
         
+def filter_packet(pkt):
+    """
+    Checks if packet is IPv6, and returns packet if not.
+    """
+    # only keep packets that have an ethernet layer
+    if (hasattr(pkt, 'eth')):
+        # discard IPv6 packets
+        if (pkt.eth.type == '0x86dd'):
+            print('IPV6 PACKET - Ignoring packet')
+            return
+        else:
+            # pkt.pretty_print()
+            return pkt
+            # print(pkt)
+    else:
+        # print("No Ether layer")
+        return
 
 def feature_extraction(pkt, features):
     """
@@ -116,12 +133,34 @@ def extract_packets(packets, features):
     Returns a pandas DataFrame with the features as columns and each non-IPv6 packet as a row.
     """
     filtered_pkts = filter_packets(packets)
-    # print(filtered_pkts)
+    print(filtered_pkts)
+    if not filtered_pkts:
+        print("no packets to predict")
+        return
     pkt_features_list = [] 
 
     for pkt in filtered_pkts:
         pkt_features = feature_extraction(pkt, features)
         pkt_features_list.append(pkt_features)
+    
+    df = pd.DataFrame(data=pkt_features_list, columns=features)
+    # print(df)
+    return df
+
+def extract_packet(packet, features):
+    """
+    Parses a single pyshark packet to extract specified features.
+    Returns a pandas DataFrame with the features as columns and the non-IPv6 packet as a row.
+    """
+    filtered_pkt = filter_packet(packet)
+    print(filtered_pkt)
+    if not filtered_pkt:
+        print("no packet to predict")
+        return
+    pkt_features_list = [] 
+
+    pkt_features = feature_extraction(pkt, features)
+    pkt_features_list.append(pkt_features)
     
     df = pd.DataFrame(data=pkt_features_list, columns=features)
     # print(df)
