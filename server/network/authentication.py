@@ -5,13 +5,34 @@ from settings import CLIENTS
 
 
 def gen_token(user):
-    token = uuid4().hex()
+    token = uuid4().hex
     CLIENTS[token] = user
-    return 
+    print(CLIENTS)
+    return token
+
+def del_token(token):
+    try:
+        return CLIENTS.pop(token)
+    
+    except KeyError:
+        try:
+            token = get_token(token)
+            CLIENTS.pop(token)
+            return token
+        
+        except KeyError:
+            return
 
 def get_user(token):
     """Find user authenticated by token or return None."""
     return CLIENTS.get(token)
+
+def get_token(user):
+    for token in CLIENTS:
+        if CLIENTS[token] == user:
+            return token
+        else:
+            return 
 
 def get_query_param(path, key):
     query = urllib.parse.urlparse(path).query
