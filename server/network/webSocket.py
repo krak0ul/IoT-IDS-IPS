@@ -4,9 +4,14 @@ import asyncio
 import json
 from websockets.asyncio.server import serve
 from websockets.exceptions import ConnectionClosedOK
+from websockets.frames import CloseCode
+from authentication import get_user, token_auth
+from Server.settings.settings import CLIENTS
 HOST = 'localhost'       # listen on all interfaces
 PORT = 3630     # open port 3630
-CLIENTS = set()
+
+
+
 
 def decode_json(json_pkt):
     return json.loads(json_pkt)
@@ -22,9 +27,20 @@ def process_packet(data):
         print(f"Data: {data}")
         return None
 
-async def process_socket(websocket):
-    pkt_recv = []
+async def first_message_handler(websocket):
+    """Handler that sends credentials in the first WebSocket message."""
+    token = await websocket.recv()
+    user = get_user(token)
+    if user is None:
+        await websocket.close(CloseCode.INTERNAL_ERROR, "authentication failed")
+        return
+
+    websocket.username = user
+    await handler(websocket)
     
+
+async def handler(websocket):
+    pkt_recv = []
     try:
         while True:
             data = await websocket.recv()
@@ -33,12 +49,13 @@ async def process_socket(websocket):
             if json_object:
                 pkt_recv.append(json_object)
 
-            print(f"packets received: {pkt_recv}\n\n")
     except ConnectionClosedOK:
-        print("Client closed connection")
-        
+        print(f"packets received: {pkt_recv}\n\n")
+        print("Client closed connection\n\n")
+
+
 async def main():
-    async with serve(process_socket, HOST, PORT) as server:
+    async with serve(handler, HOST, PORT, process_request=token_auth) as server:
         await server.serve_forever()
 
 

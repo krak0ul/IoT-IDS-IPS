@@ -33,6 +33,10 @@ FEATURES = [
 HOST = 'localhost'  # Listen on all interfaces
 PORT = 3630       # Port to listen on
 
+# Authentication settings / globals
+global CLIENTS
+CLIENTS = {}
+
 # Packet forwarding settings
 INTERFACE = "eth0"         # Interface to monitor
 FORWARD_INTERFACE = "eth1"  # Interface to forward clean packets
