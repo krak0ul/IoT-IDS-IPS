@@ -99,8 +99,6 @@ def feature_extraction(pkt, features):
         feature_value = get_attr(pkt, feature)
         pkt_features.append(feature_value)
 
-    print(f"feature list {pkt_features}")
-    print(f"pkt features: {pkt_features}")
     return pkt_features
     
 
@@ -136,7 +134,7 @@ def extract_packets(packets, features):
     filtered_pkts = filter_packets(packets)
     print(filtered_pkts)
     if not filtered_pkts:
-        print("no packets to predict")
+        # print("no packets to predict")
         return
     pkt_features_list = [] 
 
@@ -154,14 +152,13 @@ def extract_packet(packet, features):
     Returns a pandas DataFrame with the features as columns and the non-IPv6 packet as a row.
     """
     filtered_pkt = filter_packet(packet)
-    print(filtered_pkt)
+    # print(filtered_pkt)
     if not filtered_pkt:
-        print("no packet to predict")
+        # print("no packet to predict")
         return
-    pkt_features_list = [] 
 
     pkt_features = feature_extraction(filtered_pkt, features)
-    
+    print(f"packet features: {pkt_features}")
     df = pd.DataFrame(data=[pkt_features], columns=features)
     # print(df)
     return df

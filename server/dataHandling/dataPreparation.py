@@ -11,8 +11,8 @@ def cleanValues(df):
 
     # Replace 'INF' or '-INF' with NaN (if they exist)
     df.replace([np.inf, -np.inf], np.nan, inplace=True)
-    print("cleaning values: ")
-    print(df)
+    # print("cleaning values: ")
+    # print(df)
     # Drop rows with NaN values
     df.dropna(inplace=True)
     return df
@@ -65,10 +65,9 @@ def scaleFeatures(df, scaler):
 
 def prepareData(df, scaler, encoder):
     df = cleanValues(df)
-    print("values cleaned:")
     print(df)
+    print(df.info())
     df = labelEncode(df, encoder)
-    print("label encoded:")
-    print(df)
+
     df = scaleFeatures(df, scaler)
     return df

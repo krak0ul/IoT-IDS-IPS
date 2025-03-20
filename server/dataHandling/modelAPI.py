@@ -17,16 +17,15 @@ def import_model(model_pickle):
 
 def prediction(model, df):
     pred = model.predict(df)
-    counts = pd.Series(pred).value_counts()
-    labels = ['Non-Attack', 'Attack']  # Assuming 0 = Non-Attack, 1 = Attack
+    # counts = pd.Series(pred).value_counts()
 
-    print("val count: ")
-    print(counts)
+    # print("Result: ")
+    # print(counts)
     return pred
 
 async def pkt_processing(pkt, scaler, encoder, model):
     packet = await asyncio.to_thread(format_raw_packet, pkt)
-    print("packet formatted")
+    # print("packet formatted")
     # print(packet)
 
     df = extract_packet(packet, FEATURES)
@@ -37,7 +36,7 @@ async def pkt_processing(pkt, scaler, encoder, model):
         print(df)
         
         results = prediction(model, df)
-        print("prediction: " + str(results))
+        print(f"Prediction: {results}\n\n")
         return
 
 

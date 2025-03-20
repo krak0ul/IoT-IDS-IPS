@@ -1,3 +1,2 @@
 Fix feature scaling - scales features to 0 when working on a single packet
-Fix Model predictions - predicts 7 
 Write sniffer part of client code

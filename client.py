@@ -4,7 +4,7 @@ from scapy.all import rdpcap
 from websockets.sync.client import connect
 
 
-packets = rdpcap('pcaps/test.pcap')
+packets = rdpcap('pcaps/SQL injection attack.pcap')
 
 HOST = 'localhost'    # The remote host
 PORT = '3630'              # The same port as used by the server
