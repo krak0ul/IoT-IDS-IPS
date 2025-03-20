@@ -1,35 +1,35 @@
-import sys
+import asyncio
+import functools
+from websockets.asyncio.server import serve
 
 from settings import *
-from dataHandling.featureExtract import extract_packets, format_raw, pcap_to_raw
-from dataHandling.dataPreparation import prepareData, import_encoder, import_scaler
-from dataHandling.modelAPI import import_model, prediction
+
+from dataHandling.dataPreparation import import_encoder, import_scaler
+from dataHandling.modelAPI import import_model
+from network.webSocket import handler
+from network.authentication import token_auth
 
 file_name = PCAP_FILE
-features = FEATURES
 model_pickle = MODEL
 encoder_pickle = ENCODER
 scaler_pickle = SCALER
 
 
-def pkt_processing(pkt_buffer):
-        pkt_buffer = pcap_to_raw("../pcaps/test.pcap")
-        # print(pkt_buffer)
-        packets = format_raw(pkt_buffer)
 
-        df = extract_packets(packets, features)
-        print(df)
-        
-        scaler = import_scaler(scaler_pickle)
-        encoder = import_encoder(encoder_pickle)
-        df = prepareData(df, scaler, encoder)
-        print(df)
-        
-        model = import_model(model_pickle)
-        results = prediction(model, df)
-        print("prediction: " + str(results))
+# if __name__ == '__main__':
+#         pkt_processing(pkt_buffer = [])
 
-if __name__ == '__main__':
-        pkt_processing(pkt_buffer = [])
+#         sys.exit(0)
 
-        sys.exit(0)
+async def main():
+    scaler = import_scaler(scaler_pickle)
+    encoder = import_encoder(encoder_pickle)
+    model = import_model(model_pickle)
+
+    async with serve(functools.partial(handler, scaler=scaler, encoder=encoder, model=model), HOST, PORT, process_request=token_auth) as server:
+        await server.serve_forever()
+
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

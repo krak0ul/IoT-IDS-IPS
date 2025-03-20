@@ -26,13 +26,23 @@ def pcap_to_raw(file_name):
         return []
 
 
-def format_raw(pkt_buffer):
+def format_raw_packets(pkt_buffer):
     """
     Formats raw byte packets into pyshark Packet objects.
     """
     capture = ps.InMemCapture()
     # capture.set_debug()
     packets = capture.parse_packets(pkt_buffer)
+    # print(packets)
+    return packets
+
+def format_raw_packet(pkt):
+    """
+    Formats raw byte packets into pyshark Packet objects.
+    """
+    capture = ps.InMemCapture()
+    # capture.set_debug()
+    packets = capture.parse_packet(pkt)
     # print(packets)
     return packets
 

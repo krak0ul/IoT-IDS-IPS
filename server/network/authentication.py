@@ -1,7 +1,7 @@
 from uuid import uuid4
 import urllib.parse
 import http
-from server.settings import CLIENTS
+from settings import CLIENTS
 
 
 def gen_token(user):

@@ -2,6 +2,10 @@ import joblib
 # import xgboost
 import pandas as pd
 
+from dataHandling.featureExtract import extract_packets, format_raw_packet, pcap_to_raw
+from dataHandling.dataPreparation import prepareData
+from settings import FEATURES
+
 def import_model(model_pickle):
     try:
         model = joblib.load(model_pickle)
@@ -18,6 +22,21 @@ def prediction(model, df):
     print("val count: ")
     print(counts)
     return pred
+
+async def pkt_processing(pkt, scaler, encoder, model):
+#     pkt_buffer = pcap_to_raw("../pcaps/unit.pcap")
+    # print(pkt_buffer)
+    packets = await format_raw_packet(pkt)
+    
+    df = await extract_packets(packets, FEATURES)
+    print(df)
+    
+    df = await prepareData(df, scaler, encoder)
+    print(df)
+    
+    results = await prediction(model, df)
+    print("prediction: " + str(results))
+
 
 #               TODO - Trucs de thomas à explorer
 # def prediction(model, df):

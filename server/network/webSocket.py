@@ -1,17 +1,18 @@
 # from settings import HOST, PORT 
-
 import asyncio
 import json
-from websockets.asyncio.server import serve
 from websockets.exceptions import ConnectionClosedOK
 from websockets.frames import CloseCode
-from server.network.authentication import get_user, token_auth
-from server.settings import CLIENTS
+from network.authentication import get_user
+from dataHandling.modelAPI import pkt_processing
+from settings import CLIENTS
 HOST = 'localhost'       # listen on all interfaces
 PORT = 3630     # open port 3630
 
 
-
+def get_raw_pkt(json_object):
+    b64_data = json_object["data"]
+    return b64_data.encode('utf-8')
 
 def decode_json(json_pkt):
     return json.loads(json_pkt)
@@ -39,7 +40,7 @@ async def first_message_handler(websocket):
     await handler(websocket)
     
 
-async def handler(websocket):
+async def handler(websocket, scaler, encoder, model):
     pkt_recv = []
     try:
         while True:
@@ -49,16 +50,7 @@ async def handler(websocket):
             if json_object:
                 pkt_recv.append(json_object)
 
+            asyncio.create_task(pkt_processing(get_raw_pkt(json_object), scaler, encoder, model))
     except ConnectionClosedOK:
         print(f"packets received: {pkt_recv}\n\n")
         print("Client closed connection\n\n")
-
-
-async def main():
-    async with serve(handler, HOST, PORT, process_request=token_auth) as server:
-        await server.serve_forever()
-
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
