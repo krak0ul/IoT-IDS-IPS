@@ -35,7 +35,8 @@ PORT = 3630       # Port to listen on
 
 # Authentication settings / globals
 global CLIENTS
-CLIENTS = {}
+# format: token : user id
+CLIENTS = {"token":"user1"}
 
 # Packet forwarding settings
 INTERFACE = "eth0"         # Interface to monitor

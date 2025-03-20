@@ -4,7 +4,7 @@ from scapy.all import rdpcap
 from websockets.sync.client import connect
 
 
-packets = rdpcap('pcaps/test.pcap')
+packets = rdpcap('pcaps/unit.pcap')
 
 HOST = 'localhost'    # The remote host
 PORT = '3630'              # The same port as used by the server
@@ -22,7 +22,7 @@ def create_json(raw_bytes):
 
 
 def open_connection():
-    uri = f"ws://{HOST}:{PORT}?token=${TOKEN}"
+    uri = f"ws://{HOST}:{PORT}?token={TOKEN}"
     with connect(uri) as websocket:
         for pkt in packets:
             raw_bytes = bytes(pkt)

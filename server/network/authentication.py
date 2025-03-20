@@ -1,7 +1,7 @@
 from uuid import uuid4
 import urllib.parse
 import http
-from settings import CLIENTS
+from server.settings import CLIENTS
 
 
 def gen_token(user):
@@ -25,10 +25,12 @@ async def token_auth(connection, request):
     Authentication by passing the client token as a query parameter of the http packet
     """
     token = get_query_param(request.path, "token")
+    # print(token)
     if token is None:
         return connection.respond(http.HTTPStatus.UNAUTHORIZED, "Missing token\n")
 
     user = get_user(token)
+    # print(user)
     if user is None:
         return connection.respond(http.HTTPStatus.UNAUTHORIZED, "Invalid token\n")
 

@@ -5,8 +5,8 @@ import json
 from websockets.asyncio.server import serve
 from websockets.exceptions import ConnectionClosedOK
 from websockets.frames import CloseCode
-from authentication import get_user, token_auth
-from Server.settings.settings import CLIENTS
+from server.network.authentication import get_user, token_auth
+from server.settings import CLIENTS
 HOST = 'localhost'       # listen on all interfaces
 PORT = 3630     # open port 3630
 
