@@ -103,6 +103,91 @@ def feature_extraction(pkt, features):
     
 
 
+
+def convert_value(attr_str, raw_value):
+    """
+    Convert a raw value using a dictionary of conversion mappings.
+    First, if the raw value is a hexadecimal string, it is converted to an integer.
+    Then, the conversion function defined for attr_str in the dictionary is applied.
+    If no mapping exists, an attempt is made to convert the value using pd.to_numeric.
+    If conversion fails, returns 0 (or pd.NA for hex conversion errors).
+    """
+    # Convert hexadecimal string values to int
+    if isinstance(raw_value, str) and raw_value.startswith('0x'):
+        try:
+            raw_value = int(raw_value, 16)
+        except ValueError:
+            return pd.NA
+    
+    # Define the mapping from field names to their conversion functions
+    conversion_mapping = {
+        "arp.opcode": float,
+        "arp.hw.size": float,
+        "icmp.checksum": float,
+        "icmp.seq_le": float,
+        "icmp.unused": float,
+        "http.content_length": float,
+        "http.request.method": str,
+        "http.referer": str,
+        "http.request.version": str,
+        "http.response": float,
+        "http.tls_port": float,
+        "tcp.ack": float,
+        "tcp.ack_raw": float,
+        "tcp.checksum": float,
+        "tcp.connection.fin": float,
+        "tcp.connection.rst": float,
+        "tcp.connection.syn": float,
+        "tcp.connection.synack": float,
+        "tcp.flags": float,
+        "tcp.flags.ack": float,
+        "tcp.len": float,
+        "tcp.seq": float,
+        "udp.stream": float,
+        "udp.time_delta": float,
+        "dns.qry.name": float,
+        "dns.qry.name.len": str,
+        "dns.qry.qu": float,
+        "dns.qry.type": float,
+        "dns.retransmission": float,
+        "dns.retransmit_request": float,
+        "dns.retransmit_request_in": float,
+        "mqtt.conack.flags": str,
+        "mqtt.conflag.cleansess": float,
+        "mqtt.conflags": float,
+        "mqtt.hdrflags": float,
+        "mqtt.len": float,
+        "mqtt.msg_decoded_as": float,
+        "mqtt.msgtype": float,
+        "mqtt.proto_len": float,
+        "mqtt.protoname": str,
+        "mqtt.topic": str,
+        "mqtt.topic_len": float,
+        "mqtt.ver": float,
+        "mbtcp.len": float,
+        "mbtcp.trans_id": float,
+        "mbtcp.unit_id": float,
+        "Attack_label": int,
+        "Attack_type": str
+    }
+    
+    conv_func = conversion_mapping.get(attr_str)
+    
+    if conv_func is not None:
+        try:
+            return conv_func(raw_value)
+        except Exception as e:
+            print(f"Conversion failed for {attr_str} with value {raw_value}: {e}")
+            return 0
+    else:
+        # Fallback: try to convert using pandas' numeric conversion
+        try:
+            return pd.to_numeric(raw_value)
+        except Exception:
+            return raw_value
+
+
+
 def get_attr(pkt, attr_str):
     """
     Gets attribute from a packet object given a dot-separated string.
@@ -119,9 +204,15 @@ def get_attr(pkt, attr_str):
         # gets a dictionary of all fields of that layer and searches for the attribute
         try: 
             # dirty try - except is temporary solution because some protocols don't always use all attributes
-            attr = getattr(pkt, fields[0])._all_fields[attr_str]
+            field_obj = getattr(pkt, fields[0])._all_fields[attr_str]
+            attr = field_obj.show
+            # print("value:")
+            # print(attr)
+            # print(type(attr))
+            # print(f" conv val: {convert_value(attr_str, attr)}")
+            # print(f" conv val type: {type(convert_value(attr_str, attr))}")
             # print(attr_str + ': ' + str(attr))
-            return attr        
+            return convert_value(attr_str, attr)        
         except:
             return 0
 

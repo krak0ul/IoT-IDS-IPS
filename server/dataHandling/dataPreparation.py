@@ -28,12 +28,15 @@ def import_encoder(encoder_pickle):
 def labelEncode(df, encoder):
     # Identify categorical features - select_type would lead to the wrong fields being encoded, I fixed this by encoding only the parameters that were encoded in the training model
     # categorical_features = df.select_dtypes(include=['object']).columns
-    categorical_features =  ['http.request.method', 'http.referer', 'http.request.version', 'dns.qry.name.len', 'mqtt.conack.flags', 'mqtt.protoname', 'mqtt.topic']
+    categorical_features = ['http.request.method', 'http.referer', 'http.request.version', 'dns.qry.name.len', 'mqtt.conack.flags', 'mqtt.protoname', 'mqtt.topic']
     # print(f"Encoded features: {categorical_features.tolist()}")    # Apply label encoding
-    
+            
     # convert all numeric columns to an numeric datatype
-    numeric_columns = df.drop(columns=categorical_features).columns
-    df[numeric_columns] = df[numeric_columns].apply(pd.to_numeric, errors='coerce')
+    # print(f"df datatypes: {df.info()}")
+    # numeric_columns = df.drop(columns=categorical_features).columns
+    # df[numeric_columns] = df[numeric_columns].apply(pd.to_numeric, errors='coerce')
+    # print("done")
+    # print(f"df datatypes post conversion: {df.info()}")
 
     label_encoders = {}
     for col in categorical_features:
@@ -65,9 +68,13 @@ def scaleFeatures(df, scaler):
 
 def prepareData(df, scaler, encoder):
     df = cleanValues(df)
+    print("values cleaned")
     print(df)
     print(df.info())
     df = labelEncode(df, encoder)
-
+    print("label encoded")
+    print(df)
     df = scaleFeatures(df, scaler)
+    print("Features scaled")
+    print(df)
     return df
