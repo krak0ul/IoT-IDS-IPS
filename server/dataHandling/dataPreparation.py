@@ -43,7 +43,7 @@ def labelEncode(df, encoder):
         le = encoder
         
         df[col] = df[col].astype(str)   # Convert column values to strings to ensure uniformity
-        df[col] = le.fit_transform(df[col])
+        df[col] = le.transform(df[col])
         label_encoders[col] = le
 
     return df
@@ -61,7 +61,7 @@ def scaleFeatures(df, scaler):
     
     # scaled_columns = df.select_dtypes(include=[np.number]).columns
     scaled_columns = df.columns
-    df[scaled_columns] = scaler.fit_transform(df[scaled_columns])
+    df[scaled_columns] = scaler.transform(df[scaled_columns])
 
     print("Feature scaling applied.")
     return df
