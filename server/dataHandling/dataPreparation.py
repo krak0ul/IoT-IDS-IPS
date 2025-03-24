@@ -37,14 +37,15 @@ def labelEncode(df, encoder):
     # df[numeric_columns] = df[numeric_columns].apply(pd.to_numeric, errors='coerce')
     # print("done")
     # print(f"df datatypes post conversion: {df.info()}")
-
+    # print("about to encode")
     label_encoders = {}
     for col in categorical_features:
         le = encoder
         
-        df[col] = df[col].astype(str)   # Convert column values to strings to ensure uniformity
-        df[col] = le.transform(df[col])
+        # df[col] = df[col].astype(str)   # Convert column values to strings to ensure uniformity
+        df[col] = le.fit_transform(df[col])
         label_encoders[col] = le
+    print("encoded")
 
     return df
 
@@ -63,18 +64,18 @@ def scaleFeatures(df, scaler):
     scaled_columns = df.columns
     df[scaled_columns] = scaler.transform(df[scaled_columns])
 
-    print("Feature scaling applied.")
+    # print("Feature scaling applied.")
     return df
 
 def prepareData(df, scaler, encoder):
     df = cleanValues(df)
-    print("values cleaned")
-    print(df)
-    print(df.info())
+    # print("values cleaned")
+    # print(df)
+    # print(df.info())
     df = labelEncode(df, encoder)
-    print("label encoded")
-    print(df)
+    # print("label encoded")
+    # print(df)
     df = scaleFeatures(df, scaler)
-    print("Features scaled")
-    print(df)
+    # print("Features scaled")
+    # print(df)
     return df

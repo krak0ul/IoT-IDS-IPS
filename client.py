@@ -1,4 +1,5 @@
 import json
+import sys
 import base64
 from scapy.all import rdpcap, sniff
 from websockets.sync.client import connect
@@ -24,8 +25,8 @@ def create_json(raw_bytes, CLIENT_ID):
     return json.dumps(json_object)
 
 
-def open_connection_pcap():
-    packets = rdpcap('pcaps/test.pcap')
+def open_connection_pcap(pcap):
+    packets = rdpcap(pcap)
     uri = f"ws://{HOST}:{PORT}?token={TOKEN}"
 
     with connect(uri) as websocket:
@@ -39,7 +40,7 @@ def open_connection_pcap():
         websocket.close()
 
 
-def open_connection_sniff():
+def open_connection_sniff(INTERFACE):
     uri = f"ws://{HOST}:{PORT}?token={TOKEN}"
     with connect(uri) as websocket:
 
@@ -55,4 +56,26 @@ def open_connection_sniff():
 
 
 if __name__ == "__main__":
-    open_connection_sniff()
+    if len(sys.argv) == 2:
+        if sys.argv[1] == '-h' or sys.argv[1] == '--help':
+            print("\nWelcome to your Favourite IDS tool! \n\n\nUse option -h or --help to display this message.\n")
+            print("Run the Client app with either one of the following options to send traffic to the IDS server:\n")
+            print("Option -f or --forward < interface > will forward all traffic going through a specific interface.\n")
+            print("Option -p or --pcap-file < file > will send all the packets in the pcap file.\n")
+        
+        elif sys.argv[1] == '-f' or sys.argv[1] == '--forward' or sys.argv[1] == '-p' or sys.argv[1] == '--pcap-file':
+            print(f"Invalid number of arguments for option {sys.argv[1]}.")
+        else:
+            print(f"Invalid option {sys.argv[1]}\nUse option -h or --help to display the help message. ")
+
+    elif len(sys.argv) == 3:
+        if sys.argv[1] == '-p' or sys.argv[1] == '--pcap-file':
+            print(sys.argv[2])
+            token = open_connection_pcap(str(sys.argv[2]))
+
+        elif sys.argv[1] == '-f' or sys.argv[1] == '--forward':
+            open_connection_sniff(str(sys.argv[2]))
+        else:
+            print(f"Invalid option {sys.argv[1]}\nUse option -h or --help to display the help message. ")
+    else:
+        print(f"Invalid option\nUse option -h or --help to display the help message. ")

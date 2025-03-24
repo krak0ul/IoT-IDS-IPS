@@ -78,7 +78,7 @@ def filter_packet(pkt):
     if (hasattr(pkt, 'eth')):
         # discard IPv6 packets
         if (pkt.eth.type == '0x86dd'):
-            print('IPV6 PACKET - Ignoring packet')
+            print('IPV6 PACKET - Ignoring packet\n')
             return
         else:
             # pkt.pretty_print()
@@ -166,9 +166,7 @@ def convert_value(attr_str, raw_value):
         "mqtt.ver": float,
         "mbtcp.len": float,
         "mbtcp.trans_id": float,
-        "mbtcp.unit_id": float,
-        "Attack_label": int,
-        "Attack_type": str
+        "mbtcp.unit_id": float
     }
     
     conv_func = conversion_mapping.get(attr_str)

@@ -23,7 +23,7 @@ def prediction(model, df):
     # print(counts)
     return pred
 
-async def pkt_processing(pkt, scaler, encoder, model):
+async def pkt_processing(pkt, scaler, encoder, model, json_object):
     packet = await asyncio.to_thread(format_raw_packet, pkt)
     # print("packet formatted")
     # print(packet)
@@ -33,10 +33,16 @@ async def pkt_processing(pkt, scaler, encoder, model):
         return
     else:
         df = prepareData(df, scaler, encoder)
-        print(df)
+        # print(df)
         
         results = prediction(model, df)
-        print(f"Prediction: {results}\n\n")
+        pid = json_object.get("pid")
+        if results == 7:
+                print(f"\033[93m Prediction for packet {pid}: {results}\n\033[0m")
+
+            # print(f"\033[92m Prediction for packet {pid}: {results}\n\033[0m")
+        else:
+            print(f"\033[93m Prediction for packet {pid}: {results}\n\033[0m")
         return
 
 

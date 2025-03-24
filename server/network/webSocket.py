@@ -51,7 +51,7 @@ async def handler(websocket, scaler, encoder, model):
             if json_object:
                 pkt_recv.append(json_object)
                 print(get_raw_pkt(json_object))
-            asyncio.create_task(pkt_processing(get_raw_pkt(json_object), scaler, encoder, model))
+            asyncio.create_task(pkt_processing(get_raw_pkt(json_object), scaler, encoder, model, json_object))
     except ConnectionClosedOK:
         print(f"packets received: {pkt_recv}\n\n")
         print("Client closed connection\n\n")
